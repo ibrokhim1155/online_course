@@ -118,7 +118,7 @@
                         </div>
                         <a href="" class="nav-item nav-link">Contact</a>
                     </div>
-                         </div>
+                </div>
             </nav>
         </div>
     </div>
@@ -133,7 +133,7 @@
             {% csrf_token %}
             <div class="form-group">
                 <label for="email">Email *</label>
-                <input type="email" name="email" class="form-control border-0" id="email">
+                <input type="text" name="email" class="form-control border-0" id="email">
             </div>
             <div class="form-group">
                 <label for="password">Password *</label>
@@ -145,12 +145,12 @@
                            href="{% url 'login_page' %}"
                            class="btn btn-outline-primary py-md-2 px-md-4 font-weight-semi-bold">
                 </div>
-{#                <div class="form-group mb-0 mr-2">#}
-{#                    <a href="{% url 'social:begin' 'google-oauth2' %}">#}
-{#                        <input type="button" value="Log in using Google"#}
-{#                               class="btn btn-outline-primary py-md-2 px-md-4 font-weight-semi-bold">#}
-{#                    </a>#}
-{#                </div>#}
+                {#                <div class="form-group mb-0 mr-2">#}
+                {#                    <a href="{% url 'social:begin' 'google-oauth2' %}">#}
+                {#                        <input type="button" value="Log in using Google"#}
+                {#                               class="btn btn-outline-primary py-md-2 px-md-4 font-weight-semi-bold">#}
+                {#                    </a>#}
+                {#                </div>#}
                 <div class="form-group mb-0 mr-2">
                     <a href="{% url 'register_page' %}">
                         <input type="button" value="I don't have an account"

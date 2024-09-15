@@ -1,73 +1,35 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm as BaseUserCreationForm
+
 from user.models import User
 
-class CustomUserCreationForm(BaseUserCreationForm):
-    class Meta:
-        model = User
-        fields = ('username', 'email')
 
 class RegisterModelForm(forms.ModelForm):
-    password1 = forms.CharField(
-        widget=forms.PasswordInput(attrs={'placeholder': 'Password'}),
-        label='Password'
-    )
-    password2 = forms.CharField(
-        widget=forms.PasswordInput(attrs={'placeholder': 'Confirm Password'}),
-        label='Confirm Password'
-    )
+    confirm_password = forms.CharField(widget=forms.PasswordInput)
 
     class Meta:
         model = User
-        fields = ['email', 'username', 'password1', 'password2']
+        fields = ['email', 'password']
 
-    def clean(self):
-        cleaned_data = super().clean()
-        password1 = cleaned_data.get('password1')
-        password2 = cleaned_data.get('password2')
+    # def clean(self):
+    #     password = self.data.get('password')
+    #     password2 = self.data.get('confirm_password')
+    #
+    #     if password != password2:
+    #         raise forms.ValidationError('Passwords do not match.')
+    #
+    #     return password
 
-        if password1 and password2 and password1 != password2:
-            raise forms.ValidationError('Passwords do not match.')
+    # def save(self, commit=True):
+    #     user = super(RegisterModelForm, self).save(commit=False)
+    #     user.set_password(self.data['password'])
+    #     user.is_active = True
+    #     user.is_staff = True
+    #     user.is_superuser = True
+    #     if commit:
+    #         user.save()
+    #     return user
 
-        return cleaned_data
-
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.set_password(self.cleaned_data['password1'])
-        if commit:
-            user.save()
-        return user
-
-class AddUserForm(forms.ModelForm):
-    password1 = forms.CharField(
-        widget=forms.PasswordInput(attrs={'placeholder': 'Password'}),
-        label='Password'
-    )
-    password2 = forms.CharField(
-        widget=forms.PasswordInput(attrs={'placeholder': 'Confirm Password'}),
-        label='Confirm Password'
-    )
-
-    class Meta:
-        model = User
-        fields = ['email', 'username', 'password1', 'password2']
-
-    def clean(self):
-        cleaned_data = super().clean()
-        password1 = cleaned_data.get('password1')
-        password2 = cleaned_data.get('password2')
-
-        if password1 and password2 and password1 != password2:
-            raise forms.ValidationError('Passwords do not match.')
-
-        return cleaned_data
-
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.set_password(self.cleaned_data['password1'])
-        if commit:
-            user.save()
-        return user
 
 class SendingEmailForm(forms.Form):
     subject = forms.CharField(

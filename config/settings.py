@@ -124,6 +124,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+AUTH_USER_MODEL = 'user.User'
+
+SOCIAL_AUTH_USER_MODEL = 'user.User'
+
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -142,5 +146,5 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '45683647384-66q5h9tr5j2edi2eo87ueshansh8kdhb.ap
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'  # Google Client Secret
 
 
-
+LOGIN_REDIRECT_URL = '/'
 
