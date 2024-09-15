@@ -1,10 +1,14 @@
-from django.db import models
+from datetime import timedelta
+
 from django.contrib.auth import get_user_model
-from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
-from django.core.validators import URLValidator
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+
+
 
 User = get_user_model()
+
 
 class Category(models.Model):
     title = models.CharField(max_length=100, unique=True)
@@ -16,39 +20,57 @@ class Category(models.Model):
     def __str__(self):
         return self.title
 
-class Teacher(models.Model):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='teachers/', blank=True, null=True)
-    telegram_url = models.URLField(max_length=200, blank=True, null=True, validators=[URLValidator()])
-    instagram_url = models.URLField(max_length=200, blank=True, null=True, validators=[URLValidator()])
 
-    @property
-    def full_name(self):
-        return f'{self.first_name} {self.last_name}'
+# class Teacher(models.Model):
+#     first_name = models.CharField(max_length=100)
+#     last_name = models.CharField(max_length=100)
+#     image = models.ImageField(upload_to='teachers/', blank=True, null=True)
+#     telegram_url = models.URLField(max_length=200, blank=True, null=True, validators=[URLValidator()])
+#     instagram_url = models.URLField(max_length=200, blank=True, null=True, validators=[URLValidator()])
+#
+#     @property
+#     def full_name(self):
+#         return f'{self.first_name} {self.last_name}'
 
-    def clean(self):
-        if not (self.telegram_url or self.instagram_url):
-            raise ValidationError(_("At least one social media URL should be provided."))
+# def clean(self):
+#     if not (self.telegram_url or self.instagram_url):
+#         raise ValidationError(_("At least one social media URL should be provided."))
+#     if self.telegram_url and not URLValidator()(self.telegram_url):
+#         raise ValidationError(_("Invalid Telegram URL."))
+#     if self.instagram_url and not URLValidator()(self.instagram_url):
+#         raise ValidationError(_("Invalid Instagram URL."))
 
-    def __str__(self):
-        return self.full_name
 
 class Course(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     image = models.ImageField(upload_to='courses/', blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    category = models.ForeignKey('Category', on_delete=models.CASCADE)
-    teacher = models.ForeignKey('Teacher', on_delete=models.CASCADE, blank=True, null=True)
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='courses')
+    teacher = models.ForeignKey('user.Teacher', on_delete=models.CASCADE, related_name='courses')
     rating = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+
+    @property
+    def duration_of_video(self):
+        total_duration = sum((video.duration for video in self.videos.all()), timedelta())
+
+        total_seconds = int(total_duration.total_seconds())
+        hours, remainder = divmod(total_seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+
+        return f'{hours}h {minutes}m {seconds}s'
+
+    def clean(self):
+        if self.rating and (self.rating < 0 or self.rating > 5):
+            raise ValidationError(_("Rating must be between 0 and 5."))
 
     def __str__(self):
         return self.name
 
+
 class Video(models.Model):
     name = models.CharField(max_length=200)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='videos')
+    course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='videos')
     duration = models.DurationField()
     file = models.FileField(upload_to='videos/')
 
@@ -59,9 +81,10 @@ class Video(models.Model):
     def __str__(self):
         return f'{self.name} - {self.course.name}'
 
+
 class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
-    phone_number = models.CharField(max_length=20, validators=[])
+    phone_number = models.CharField(max_length=20)
     courses = models.ManyToManyField(Course, related_name='customers')
 
     class Meta:
@@ -74,6 +97,7 @@ class Customer(models.Model):
     def clean(self):
         if not self.phone_number.isdigit():
             raise ValidationError(_("Phone number should only contain digits."))
+
 
 class Blog(models.Model):
     title = models.CharField(max_length=200, unique=True)
@@ -88,6 +112,7 @@ class Blog(models.Model):
 
     def __str__(self):
         return self.title
+
 
 class Comment(models.Model):
     class RatingChoices(models.IntegerChoices):
@@ -112,8 +137,6 @@ class Comment(models.Model):
         return f'Comment by {self.user.username} on {self.blog.title}'
 
     def clean(self):
-        if self.rating < 1 or self.rating > 5:
-            raise ValidationError(_("Rating must be between 1 and 5."))
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+        if self.rating:
+            if self.rating < 1 or self.rating > 5:
+                raise ValidationError(_("Rating must be between 1 and 5."))

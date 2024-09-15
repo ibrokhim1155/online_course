@@ -1,0 +1,134 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>{{ blog.title }} - ECourses</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Blog Detail" name="keywords">
+    <meta content="{{ blog.title }}" name="description">
+
+    <!-- Favicon -->
+    <link href="{% static 'courses/img/favicon.ico' %}" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"> 
+
+    <!-- Font Awesome -->
+    <link href="{% static 'courses/css/all.min.css' %}" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="{% static 'courses/lib/owlcarousel/assets/owl.carousel.min.css' %}" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{% static 'courses/css/style.css' %}" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Topbar Start -->
+    <!-- (Include your topbar code here) -->
+    <!-- Topbar End -->
+
+    <!-- Navbar Start -->
+    <!-- (Include your navbar code here) -->
+    <!-- Navbar End -->
+
+    <!-- Header Start -->
+    <div class="container-fluid page-header" style="margin-bottom: 90px;">
+        <div class="container">
+            <div class="d-flex flex-column justify-content-center" style="min-height: 300px">
+                <h3 class="display-4 text-white text-uppercase">{{ blog.title }}</h3>
+                <div class="d-inline-flex text-white">
+                    <p class="m-0 text-uppercase"><a class="text-white" href="{% url 'index' %}">Home</a></p>
+                    <i class="fa fa-angle-double-right pt-1 px-3"></i>
+                    <p class="m-0 text-uppercase">{{ blog.title }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Header End -->
+
+    <!-- Blog Detail Start -->
+    <div class="container-fluid py-5">
+        <div class="container py-5">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="blog-item mb-4">
+                        <img class="img-fluid w-100" src="{{ blog.image.url }}" alt="{{ blog.title }}">
+                        <h2 class="my-4">{{ blog.title }}</h2>
+                        <p>{{ blog.content }}</p>
+                        <p class="text-muted">Published on: {{ blog.created_at }}</p>
+                    </div>
+
+                    <!-- Comments Section Start -->
+                    <div class="comments-section mt-5">
+                        <h4>Comments</h4>
+                        <ul class="list-unstyled">
+                            {% for comment in blog.comments.all %}
+                                <li class="mb-3">
+                                    <p><strong>{{ comment.author }}</strong> said:</p>
+                                    <p>{{ comment.content }}</p>
+                                    <p class="text-muted"><small>{{ comment.created_at }}</small></p>
+                                </li>
+                            {% empty %}
+                                <li>No comments yet. Be the first to comment!</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <!-- Comments Section End -->
+
+                    <!-- Add Comment Form Start -->
+                    {% if user.is_authenticated %}
+                        <div class="add-comment-section mt-5">
+                            <h4>Leave a Comment</h4>
+                            <form method="post" >
+                                {% csrf_token %}
+
+                                <div class="form-group">
+                                    <label for="content">Your Comment</label>
+                                    <textarea name="content" class="form-control" id="content" rows="5" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-3">Post Comment</button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <p>You need to be logged in to leave a comment. <a href="{% url 'login' %}">Login here</a>.</p>
+                    {% endif %}
+                    <!-- Add Comment Form End -->
+
+                </div>
+
+                <!-- Sidebar Start (Optional) -->
+                <div class="col-lg-4">
+                    <!-- Sidebar widgets -->
+                </div>
+                <!-- Sidebar End -->
+            </div>
+        </div>
+    </div>
+    <!-- Blog Detail End -->
+
+    <!-- Footer Start -->
+    <!-- (Include your footer code here) -->
+    <!-- Footer End -->
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="fa fa-angle-double-up"></i></a>
+
+    <!-- JavaScript Libraries -->
+    <script src="{% static 'courses/js/jquery-3.4.1.min.js' %}"></script>
+    <script src="{% static 'courses/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'courses/lib/easing/easing.min.js' %}"></script>
+    <script src="{% static 'courses/lib/owlcarousel/owl.carousel.min.js' %}"></script>
+
+    <!-- Contact Javascript File -->
+    <script src="{% static 'courses/mail/jqBootstrapValidation.min.js' %}"></script>
+    <script src="{% static 'courses/mail/contact.js' %}"></script>
+
+    <!-- Template Javascript -->
+    <script src="{% static 'courses/js/main.js' %}"></script>
+</body>
+
+</html>

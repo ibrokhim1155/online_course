@@ -1,0 +1,56 @@
+{% load static %}
+
+<!-- Courses Start -->
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h5 class="text-primary text-uppercase mb-3" style="letter-spacing: 5px;">Welcome</h5>
+        </div>
+        <div class="video-container">
+
+            <div class="flex-grow-1 mb-4">
+                <video controls width="40%">
+                    <source src="{{ video.file.url }}" type="video/mp4">
+                    Your browser does not support HTML video.
+                </video>
+            </div>
+
+            <div class="comments-section">
+                <div class="bg-secondary p-4 mb-4">
+                    <strong>{{ video.title }}</strong>
+                </div>
+                <div class="bg-secondary p-4 comments-content">
+                    <strong style="color: #fca605">Comments</strong><br><br>
+                    {% if comments %}
+                        {% for comment in comments %}
+                            <div class="comment mb-3">
+                                <strong>User email:</strong> {{ comment.user.email }}<br>
+                                <p>{{ comment.content }}</p>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No comments yet.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Comment form for authenticated users -->
+                <div class="comment-form mt-4">
+                    {% if user.is_authenticated %}
+                        <form action="" method="POST">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <textarea name="comment" class="form-control" rows="3" placeholder="Add a comment..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-2">Submit</button>
+                        </form>
+                    {% else %}
+                        <p>You must <a href="{% url 'login' %}">login</a> to leave a comment.</p>
+                    {% endif %}
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- Courses End -->

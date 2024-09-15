@@ -104,7 +104,7 @@
                         <div class="navbar-nav py-0">
                             <a href="index.html" class="nav-item nav-link">Home</a>
                             <a href="about.html" class="nav-item nav-link active">About</a>
-                            <a href="courses_list.html" class="nav-item nav-link">Courses</a>
+                            <a href="{% url 'courses_list' %}" class="nav-item nav-link">Courses</a>
                             <a href="{% url 'teachers_list' %}" class="nav-item nav-link">Teachers</a>
                             <div class="nav-item dropdown">
                                 <a href="{% url 'blog_list' %}" class="nav-link dropdown-toggle" data-toggle="dropdown">Blog</a>

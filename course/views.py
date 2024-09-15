@@ -1,8 +1,11 @@
-from django.shortcuts import get_object_or_404
-from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
+from django.views import View
 from django.views.generic import ListView, DetailView, TemplateView
-from .models import Course, Category, Blog, Teacher, Customer
 
+from user.models import Teacher
+from .forms import CommentForm
+from .models import Course, Category, Blog, Customer, Video
 
 
 class CategoryListView(ListView):
@@ -12,9 +15,12 @@ class CategoryListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        teachers = Teacher.objects.all()
+        courses = Course.objects.all()
+        context['teachers'] = teachers
+        context['courses'] = courses
         context['popular_categories'] = Category.objects.all().order_by('-title')[:5]
         return context
-
 
 
 class CategoryDetailView(DetailView):
@@ -22,14 +28,10 @@ class CategoryDetailView(DetailView):
     template_name = 'course/category_detail.html'
     context_object_name = 'category'
 
-    def get_object(self):
-        return get_object_or_404(Category, pk=self.kwargs['pk'])
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['courses'] = self.object.courses.all()
         return context
-
 
 
 class CourseListView(ListView):
@@ -48,20 +50,18 @@ class CourseListView(ListView):
         return context
 
 
-
 class CourseDetailView(DetailView):
     model = Course
     template_name = 'course/courses_detail.html'
     context_object_name = 'course'
 
-    def get_object(self):
-        return get_object_or_404(Course, id=self.kwargs.get('course_id'))
-
     def get_context_data(self, **kwargs):
+        course = self.get_object()
         context = super().get_context_data(**kwargs)
+        videos = course.videos.all()
         context['related_courses'] = Course.objects.filter(category=self.object.category).exclude(id=self.object.id)[:5]
+        context['videos'] = videos
         return context
-
 
 
 class AboutView(TemplateView):
@@ -73,17 +73,6 @@ class AboutView(TemplateView):
         return context
 
 
-
-class TeacherListView(ListView):
-    model = Teacher
-    template_name = 'course/teachers_list.html'
-    context_object_name = 'teachers'
-
-    def get_queryset(self):
-        return Teacher.objects.prefetch_related('courses').order_by('last_name')
-
-
-
 class BlogListView(ListView):
     model = Blog
     template_name = 'course/blog_list.html'
@@ -92,8 +81,37 @@ class BlogListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['latest_blogs'] = Blog.objects.order_by('-created_at')[:5]
+        context['categories'] = Category.objects.all()
         return context
 
+
+class BlogDetailView(DetailView):
+    model = Blog
+    template_name = 'course/blog_detail.html'
+    context_object_name = 'blog'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['related_blogs'] = Blog.objects.exclude(id=self.object.id).order_by('-created_at')[:5]
+        context['categories'] = Category.objects.all()
+        context['form'] = CommentForm()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        blog = self.get_object()
+        form = CommentForm()
+
+        if 'comment' in request.GET:
+            form = CommentForm(request.GET)
+
+            if form.is_valid():
+                comment = form.save(commit=False)
+                comment.user = request.user
+                comment.blog = blog
+                comment.save()
+                return redirect('index')
+
+        return redirect('index')
 
 
 class CustomerListView(ListView):
@@ -104,10 +122,31 @@ class CustomerListView(ListView):
     def get_queryset(self):
         return Customer.objects.select_related('user').order_by('-id')
 
-from django.contrib.auth.views import LoginView as AuthLoginView
-from django.urls import reverse_lazy
 
-class LoginView(AuthLoginView):
-    template_name = 'course/login.html'
-    success_url = reverse_lazy('home')
+class VideoListView(ListView):
+    model = Video
+    template_name = 'course/video_list.html'
+    context_object_name = 'videos'
+
+
+class VideoDetailView(DetailView):
+    model = Video
+    template_name = 'course/video_detail.html'
+    context_object_name = 'video'
+
+    def post(self, request, *args, **kwargs):
+        blog = self.get_object()
+        form = CommentForm()
+
+        if 'comment' in request.GET:
+            form = CommentForm(request.GET)
+
+            if form.is_valid():
+                comment = form.save(commit=False)
+                comment.user = request.user
+                comment.blog = blog
+                comment.save()
+                return redirect('index')
+
+        return redirect('index')
 

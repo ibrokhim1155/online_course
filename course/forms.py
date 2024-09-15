@@ -1,7 +1,7 @@
 from django import forms
 from course.models import Customer
-from users.models import Users
-
+from user.models import User
+from .models import Comment
 
 class LoginForm(forms.Form):
     email = forms.EmailField(required=True, label="Email Address", widget=forms.EmailInput(attrs={'placeholder': 'Enter your email'}))
@@ -12,7 +12,7 @@ class RegisterForm(forms.ModelForm):
     confirm_password = forms.CharField(max_length=255, widget=forms.PasswordInput(attrs={'placeholder': 'Confirm your password'}), required=True)
 
     class Meta:
-        model = Users
+        model = User
         fields = ('username', 'email', 'password')
         widgets = {
             'password': forms.PasswordInput(attrs={'placeholder': 'Enter your password'}),
@@ -22,7 +22,7 @@ class RegisterForm(forms.ModelForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if Users.objects.filter(email=email).exists():
+        if User.objects.filter(email=email).exists():
             raise forms.ValidationError(f'This email "{email}" is already in use.')
         return email
 
@@ -53,3 +53,15 @@ class SendingEmailForm(forms.Form):
         if not recipient.endswith('@example.com'):
             raise forms.ValidationError('Recipient must use a valid "@example.com" email address.')
         return recipient
+
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['message', 'rating']
+        widgets = {
+            'message': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Enter your comment...'}),
+            'rating': forms.Select(choices=Comment.RatingChoices.choices),
+        }
+

@@ -1,186 +1,60 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Courses</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <!-- Custom CSS -->
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f8f9fa;
-            color: #333;
-        }
-
-        .header {
-            background: url('https://i.pinimg.com/564x/bb/42/d1/bb42d137e3ad0bbcc44bc37e1c8ad00e.jpg') no-repeat center center;
-            background-size: cover;
-            color: white;
-            padding: 80px 0;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .header h1 {
-            font-size: 3rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        .header p {
-            font-size: 1.2rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .course-card {
-            border: none;
-            border-radius: 10px;
-            overflow: hidden;
-            transition: transform 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .course-card:hover {
-            transform: translateY(-10px);
-        }
-
-        .course-card img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .course-card-body {
-            padding: 20px;
-            background-color: #fff;
-        }
-
-        .course-card-title {
-            font-size: 1.5rem;
-            color: #007bff;
-            margin-bottom: 10px;
-            font-weight: bold;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .course-card-title:hover {
-            color: #0056b3;
-        }
-
-        .course-card-meta {
-            font-size: 0.9rem;
-            color: #777;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .course-card-description {
-            font-size: 1rem;
-            color: #555;
-            margin-bottom: 20px;
-            height: 60px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-        }
-
-        .course-card-footer {
-            background-color: #f8f9fa;
-            padding: 15px;
-            text-align: center;
-            border-top: 1px solid #ddd;
-        }
-
-        .course-card-footer a {
-            color: #007bff;
-            text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s ease;
-        }
-
-        .course-card-footer a:hover {
-            color: #0056b3;
-            text-decoration: underline;
-        }
-
-        .container {
-            padding-top: 50px;
-        }
-
-        .course-empty {
-            text-align: center;
-            padding: 50px 0;
-            color: #777;
-            font-size: 1.2rem;
-        }
-    </style>
+    <meta charset="utf-8">
+    <title>{{ course.name }} - Course Detail</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="{% static 'courses/css/style.css' %}" rel="stylesheet">
 </head>
+
 <body>
-<header class="header">
+<!-- Header Start -->
+<div class="container-fluid py-5">
     <div class="container">
-        <h1>{{ category.title }}</h1>
-        <p class="lead">Explore a variety of courses to enhance your skills and knowledge.</p>
-    </div>
-</header>
-
-<div class="container">
-    <div class="row">
-        {% for course in courses %}
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="rounded overflow-hidden mb-2">
-                    {% if user.is_student %}
-                        <a href="{% url 'course_detail' course.id %}">
-                        <video class="img-fluid" controls autoplay muted
-                               style="width: 100%; height: 200px; object-fit: cover;">
-                            <source src="{{ course.videos.first.video.url }}" type="video/mp4">
-                            Your browser does not support the video tag.
+        <div class="row">
+            <div class="col-lg-8">
+                <h2>{{ course.name }}</h2>
+                <!-- Video Player -->
+                {% for video in videos %}
+                    <div class="video-container">
+                        <video width="30%" controls>
+                            <source src="{{ video.file.url }}" type="video/mp4">
+                            Your browser does not support HTML video.
                         </video>
-                    {% else %}
-                        <video class="img-fluid" controls autoplay muted
-                               style="width: 100%; height: 200px; object-fit: cover;">
-                            <source src="{{ course.videos.first.video.url }}" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                    {% endif %}
-
-                    </a>
-
-                    <div class="course-card-body">
-                        {% if user.is_student %}
-                        <a href="{% url 'course_detail' course.id %}" class="course-card-title">{{ course.title }}</a>
-                        {% else %}
-                        <a href="#" class="course-card-title">{{ course.title }}</a>
-                        {% endif %}
-                        <div class="course-card-meta">
-                            <span><i
-                                    class="fa fa-users text-primary"></i> {{ course.number_of_students }} students</span>
-                            <span><i class="fa fa-clock text-primary"></i> {{ course.duration_of_video }}</span>
-                        </div>
-                        <p class="course-card-description">{{ course.description|slice:":100" }}...</p>
                     </div>
 
-                </div>
+
+                    <h5>
+                        <a href="{% url 'video_detail' video.id %}" target="_blank">{{ video.name }}</a>
+                    </h5>
+                {% empty %}
+                    <li>No videos available.</li>
+                {% endfor %}
+
             </div>
-        {% empty %}
-            <div class="col-12 course-empty">
-                <p>No courses available at the moment. Please check back later.</p>
-            </div>
-        {% endfor %}
+        </div>
     </div>
 </div>
+<!-- Header End -->
 
-<!-- Bootstrap JS and dependencies -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Footer Start -->
+<div class="container-fluid bg-dark text-white py-5 px-sm-3 px-lg-5" style="margin-top: 90px;">
+    <div class="row pt-5">
+        <div class="col-lg-7 col-md-12">
+            <div class="row">
+                <div class="col-md-6 mb-5">
+                    <h5 class="text-primary text-uppercase mb-4" style="letter-spacing: 5px;">Get In Touch</h5>
+                    <p><i class="fa fa-map-marker-alt mr-2"></i>123 Street, New York, USA</p>
+                    <p><i class="fa fa-phone-alt mr-2"></i>+012 345 67890</p>
+                    <p><i class="fa fa-envelope mr-2"></i>info@example.com</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Footer End -->
+
 </body>
 </html>
